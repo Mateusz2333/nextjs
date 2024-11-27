@@ -3,13 +3,13 @@ import { getAuth } from "firebase/auth";
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC5bjp4se8FKeCpo5PjGQ_exxvV_gLlZNc",
-  authDomain: "nextjs-15dbb.firebaseapp.com",
-  projectId: "nextjs-15dbb",
-  storageBucket: "nextjs-15dbb.firebasestorage.app",
-  messagingSenderId: "894901292332",
-  appId: "1:894901292332:web:7567651632611aef6e7089",
-  measurementId: "G-RNW3E4GFM1"
+  apiKey: process.env.NEXT_PUBLIC_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID
 };
 
 
