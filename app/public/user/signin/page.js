@@ -1,69 +1,90 @@
 'use client';
-import { signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
-import { auth } from "@/app/_lib/firebase"; 
+
+import { useState } from 'react';
+import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export default function SignInForm() {
-  const params = useSearchParams();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const auth = getAuth();
   const router = useRouter();
-  const returnUrl = params.get("returnUrl") || "/"; 
-  const [error, setError] = useState(null); 
 
-  const onSubmit = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const email = e.target["email"].value;
-    const password = e.target["password"].value;
+    setLoading(true);
+    setLoginError('');
 
-    setPersistence(auth, browserSessionPersistence)
-      .then(() => {
-        signInWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
-            router.push(returnUrl); 
-          })
-          .catch((error) => {
-            const errorCode = error.code;
-            let errorMessage = "Invalid credentials. Please check your login information.";
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-            if (errorCode === "auth/user-not-found") {
-              errorMessage = "User not found.";
-            } else if (errorCode === "auth/wrong-password") {
-              errorMessage = "Incorrect password.";
-            }
-
-            setError(errorMessage); 
-          });
-      })
-      .catch(() => {
-        setError("An error occurred. Please try again later.");
-      });
+      if (user.emailVerified) {
+        
+        router.push('/'); 
+      } else {
+        
+        await signOut(auth);
+        router.push('/user/verify');
+      }
+    } catch (error) {
+      setLoginError('Invalid credentials or user not found.');
+      console.error('Login error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-gray-100 rounded shadow">
-      <h1 className="text-2xl font-bold mb-4">Sign In</h1>
-      {error && (
-        <div className="alert alert-error">
-          <span>{error}</span>
+    <div className="max-w-md mx-auto mt-10 p-4 bg-white shadow-md rounded">
+      <h2 className="text-2xl font-bold mb-4">Login</h2>
+
+      {loginError && (
+        <div className="mb-4 p-2 text-sm text-red-700 bg-red-100 border border-red-400 rounded">
+          {loginError}
         </div>
       )}
-      <form onSubmit={onSubmit} className="space-y-4">
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="w-full border p-2 rounded"
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="w-full border p-2 rounded"
-          required
-        />
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
-          Sign In
+
+      <form onSubmit={handleLogin}>
+        <div className="mb-4">
+          <label htmlFor="email" className="block font-semibold mb-1">
+            Email Address
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="password" className="block font-semibold mb-1">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          className={`w-full p-2 bg-blue-600 text-white font-bold rounded ${loading ? "opacity-50" : ""}`}
+          disabled={loading}
+        >
+          {loading ? "Logging in..." : "Log in"}
         </button>
       </form>
     </div>

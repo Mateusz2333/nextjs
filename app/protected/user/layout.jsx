@@ -1,22 +1,27 @@
 'use client';
 
 import { useAuth } from "@/app/_lib/AuthContext";
-import { useLayoutEffect } from "react";
-import { redirect } from 'next/navigation';
-import { usePathname } from 'next/navigation';
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from 'next/navigation';
 
 function Protected({ children }) {
-    const { user } = useAuth(); 
-    const returnUrl = usePathname(); 
+  const { user, loading } = useAuth(); 
+  const [redirecting, setRedirecting] = useState(false); 
+  const router = useRouter();
+  const returnUrl = usePathname();
 
-    useLayoutEffect(() => {
-        if (!user) {
-            redirect(`/public/user/signin?returnUrl=${returnUrl}`);
-        }
-    }, [user]); 
-    
+  useEffect(() => {
+    if (!loading && !user) { 
+      setRedirecting(true); 
+      router.push(`/public/user/signin?returnUrl=${returnUrl}`);
+    }
+  }, [user, loading, returnUrl, router]);
 
-    return <>{children}</>; 
+  if (loading || redirecting) {
+    return <div>Loading...</div>; 
+  }
+
+  return <>{children}</>;
 }
 
 export default Protected;
