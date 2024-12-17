@@ -3,59 +3,84 @@
 import { useState, useEffect } from 'react';
 import { getAuth, updateProfile } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { db } from '@/app/_lib/firebase'; 
+import { setDoc, doc, getDoc } from 'firebase/firestore';
+import { useForm } from 'react-hook-form'; 
 
 export default function ProfilePage() {
-  const [formData, setFormData] = useState({
-    displayName: '',
-    email: '',
-    photoURL: ''
-  });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isUpdated, setIsUpdated] = useState(false);
-
+  const [error, setError] = useState('');
+  
   const auth = getAuth();
   const user = auth.currentUser;
   const router = useRouter();
 
+  
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: user?.email,
+      displayName: user?.displayName,
+      photoURL: user?.photoURL,
+      street: '',
+      city: '',
+      zipCode: ''
+    },
+  });
+
+  
   useEffect(() => {
     if (user) {
-      setFormData({
-        displayName: user.displayName || '',
-        email: user.email || '',
-        photoURL: user.photoURL || ''
-      });
+      const fetchUserData = async () => {
+        try {
+          const snapshot = await getDoc(doc(db, 'users', user.uid)); 
+          if (snapshot.exists()) {
+            const address = snapshot.data().address; 
+            setValue('street', address?.street || '');
+            setValue('city', address?.city || '');
+            setValue('zipCode', address?.zipCode || '');
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          setError('Wystąpił błąd podczas ładowania danych.');
+        }
+      };
+      fetchUserData();
     }
-  }, [user]);
+  }, [user, setValue]); 
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (formData) => {
     setLoading(true);
     setError('');
     setIsUpdated(false);
 
     try {
+      
       await updateProfile(user, {
         displayName: formData.displayName,
-        photoURL: formData.photoURL
+        photoURL: formData.photoURL,
       });
 
-      console.log('Profile updated');
-
       
-      if (user.displayName === formData.displayName && user.photoURL === formData.photoURL) {
-        setIsUpdated(true);
-      }
+      await setDoc(doc(db, 'users', user.uid), {
+        address: {
+          street: formData.street,
+          city: formData.city,
+          zipCode: formData.zipCode,
+        },
+      });
+
+      console.log('Profile and address updated');
+      setIsUpdated(true);
     } catch (error) {
       console.error('Error updating profile:', error);
-      setError(error.message);
+      setError('Wystąpił błąd podczas zapisywania danych. Proszę spróbować ponownie.');
     } finally {
       setLoading(false);
     }
@@ -73,12 +98,11 @@ export default function ProfilePage() {
 
       {isUpdated && (
         <div className="mb-4 p-2 text-sm text-green-700 bg-green-100 border border-green-400 rounded">
-          Profile updated successfully! Display name is now: {formData.displayName}
+          Profile and address updated successfully!
         </div>
       )}
 
-      <form onSubmit={onSubmit}>
-        
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-4">
           <label htmlFor="displayName" className="block font-semibold mb-1">
             Display Name
@@ -87,14 +111,12 @@ export default function ProfilePage() {
             type="text"
             id="displayName"
             name="displayName"
-            value={formData.displayName}
-            onChange={handleChange}
+            {...register('displayName', { required: true })}
             className="w-full p-2 border rounded"
-            required
           />
+          {errors.displayName && <p className="text-red-500 text-xs">Display Name is required</p>}
         </div>
 
-        
         <div className="mb-4">
           <label htmlFor="email" className="block font-semibold mb-1">
             Email Address
@@ -103,13 +125,12 @@ export default function ProfilePage() {
             type="email"
             id="email"
             name="email"
-            value={formData.email}
+            value={user?.email}
             readOnly
             className="w-full p-2 border rounded bg-gray-100"
           />
         </div>
 
-        
         <div className="mb-4">
           <label htmlFor="photoURL" className="block font-semibold mb-1">
             Profile Photo URL
@@ -118,18 +139,59 @@ export default function ProfilePage() {
             type="text"
             id="photoURL"
             name="photoURL"
-            value={formData.photoURL}
-            onChange={handleChange}
+            {...register('photoURL')}
             className="w-full p-2 border rounded"
           />
         </div>
 
         
+        <div className="mb-4">
+          <label htmlFor="street" className="block font-semibold mb-1">
+            Street
+          </label>
+          <input
+            type="text"
+            id="street"
+            name="street"
+            {...register('street', { required: true })}
+            className="w-full p-2 border rounded"
+          />
+          {errors.street && <p className="text-red-500 text-xs">Street is required</p>}
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="city" className="block font-semibold mb-1">
+            City
+          </label>
+          <input
+            type="text"
+            id="city"
+            name="city"
+            {...register('city', { required: true })}
+            className="w-full p-2 border rounded"
+          />
+          {errors.city && <p className="text-red-500 text-xs">City is required</p>}
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="zipCode" className="block font-semibold mb-1">
+            Zip Code
+          </label>
+          <input
+            type="text"
+            id="zipCode"
+            name="zipCode"
+            {...register('zipCode', { required: true })}
+            className="w-full p-2 border rounded"
+          />
+          {errors.zipCode && <p className="text-red-500 text-xs">Zip Code is required</p>}
+        </div>
+
         <div className="mb-4 text-center">
           <label className="block font-semibold mb-1">Profile Picture:</label>
-          {formData.photoURL ? (
+          {user?.photoURL ? (
             <img
-              src={formData.photoURL}
+              src={user.photoURL}
               alt="Profile Picture"
               className="w-32 h-32 rounded-full object-cover mx-auto"
             />

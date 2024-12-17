@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FaHome, FaUser, FaSignInAlt, FaSignOutAlt, FaUserAstronaut, FaUserAltSlash, FaUserCircle } from "react-icons/fa"; 
+import { FaHome, FaUser, FaSignInAlt, FaSignOutAlt, FaUserAstronaut, FaUserAltSlash, FaUserCircle, FaAd, FaTable } from "react-icons/fa"; 
 import { AuthProvider } from "./_lib/AuthContext"; 
 import './globals.css';
 
@@ -41,6 +41,11 @@ export default function Layout({ children }) {
                   <li>
                     <Link href="/protected/user/profile" className="flex items-center">
                       <FaUserCircle className="mr-2" /> Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/table" className="flex items-center">
+                      <FaTable className="mr-2" /> Table 
                     </Link>
                   </li>
                 </ul>
