@@ -190,7 +190,7 @@ export default function ProfilePage() {
         <div className="mb-4 text-center">
           <label className="block font-semibold mb-1">Profile Picture:</label>
           {user?.photoURL ? (
-            <img
+            <image
               src={user.photoURL}
               alt="Profile Picture"
               className="w-32 h-32 rounded-full object-cover mx-auto"

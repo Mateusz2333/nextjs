@@ -9,14 +9,14 @@ export default function UserProfileMenu() {
     <div className="flex items-center space-x-4">
       
       {user?.photoURL ? (
-        <img
+        <image
           src={user.photoURL}
           alt="Profile Picture"
           className="w-10 h-10 rounded-full object-cover"
         />
       ) : (
         
-        <img
+        <image
           src="/public/windows.jpg" 
           alt="Default Profile"
           className="w-10 h-10 rounded-full object-cover"
