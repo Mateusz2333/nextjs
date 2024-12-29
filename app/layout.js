@@ -52,11 +52,6 @@ export default function Layout({ children }) {
               </nav>
 
               <main className="flex-1 p-6">
-                <section className="home-info">
-                  <h1 className="text-3xl font-bold text-gray-800">Welcome to the Next.js App</h1>
-                  <p className="mt-2 text-xl text-gray-600">Mateusz Nowak 14328</p>
-                </section>
-
                 {children}
               </main>
             </div>

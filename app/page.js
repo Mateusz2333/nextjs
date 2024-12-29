@@ -2,8 +2,14 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+    <div className="grid grid-rows-[1fr_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col gap-8 row-start-1 items-center sm:items-start">
+        
+        <section className="text-center sm:text-left">
+          <h1 className="text-5xl font-bold text-gray-800">Welcome to the Next.js App</h1>
+          <p className="mt-4 text-xl text-gray-600">Mateusz Nowak 14328</p>
+        </section>
+
         <Image
           className="dark:invert"
           src="/next.svg"
