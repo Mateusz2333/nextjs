@@ -4,8 +4,8 @@ import { AuthProvider } from "./_lib/AuthContext";
 import './globals.css';
 
 export const metadata = {
-  title: "My Application",
-  description: "A sample application",
+  title: "Nextjs",
+  description: "Nextjs application",
 };
 
 export default function Layout({ children }) {
@@ -51,7 +51,14 @@ export default function Layout({ children }) {
                 </ul>
               </nav>
 
-              <main className="flex-1 p-6">{children}</main>
+              <main className="flex-1 p-6">
+                <section className="home-info">
+                  <h1 className="text-3xl font-bold text-gray-800">Welcome to the Next.js App</h1>
+                  <p className="mt-2 text-xl text-gray-600">Mateusz Nowak 14328</p>
+                </section>
+
+                {children}
+              </main>
             </div>
 
             <footer className="bg-gray-800 text-white text-center p-4">
