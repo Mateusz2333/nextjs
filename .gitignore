@@ -23,6 +23,9 @@
 # misc
 .DS_Store
 *.pem
+.firebase
+.firebaserc
+firebase.json
 
 # debug
 npm-debug.log*
